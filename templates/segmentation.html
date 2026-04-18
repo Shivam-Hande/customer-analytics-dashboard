@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Segmentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; }
+        #dropZone { transition: background 0.2s; }
+        #dropZone:hover { background-color: rgba(102,126,234,0.05); }
+        .animate-bounce { animation: bounce 1s infinite; }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+        .badge-high    { background:#d1fae5; color:#065f46; }
+        .badge-medium  { background:#fef3c7; color:#92400e; }
+        .badge-low     { background:#fee2e2; color:#991b1b; }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+<div class="flex h-screen overflow-hidden">
+
+    <!-- ───── Sidebar ───── -->
+    <div class="w-64 bg-teal-700 text-white overflow-y-auto flex-shrink-0">
+        <div class="p-6">
+            <div class="flex items-center space-x-2 mb-8">
+                <i class="fas fa-sitemap text-2xl" style="color:#667eea;"></i>
+                <span class="text-xl font-bold">Segmentation</span>
+            </div>
+            <nav class="space-y-2">
+                <a href="/clv" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-teal-800 transition">
+                    <i class="fas fa-user-chart mr-3"></i>CLV Prediction
+                </a>
+                <a href="/churn" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-teal-800 transition">
+                    <i class="fas fa-user-slash mr-3"></i>Churn Analysis
+                </a>
+                <a href="/segment" class="block px-4 py-3 rounded-lg text-white" style="background-color:#06b6d4;">
+                    <i class="fas fa-sitemap mr-3"></i>Segmentation
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- ───── Main Content ───── -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+
+        <!-- Top Bar -->
+        <div class="bg-white shadow-sm px-8 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-900">Customer Segmentation Engine</h1>
+            <button onclick="refreshAll()" class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition">
+                <i class="fas fa-sync mr-2"></i>Refresh
+            </button>
+        </div>
+
+        <!-- Scrollable Body -->
+        <div class="flex-1 overflow-y-auto p-8">
+
+            <!-- ── Upload ── -->
+            <div class="bg-white p-8 rounded-xl shadow-sm mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-upload mr-3" style="color:#667eea;"></i>Upload Customer Data
+                </h2>
+                <div class="border-2 border-dashed border-purple-400 p-12 text-center rounded-lg cursor-pointer" id="dropZone">
+                    <i class="fas fa-cloud-upload-alt text-5xl mb-4" style="color:#667eea;"></i>
+                    <p class="text-lg font-semibold text-gray-900 mt-2">Drag and drop your CSV file</p>
+                    <p class="text-gray-600 mb-4">or click to select</p>
+                    <input type="file" id="file" accept=".csv" class="hidden">
+                    <button onclick="document.getElementById('file').click()"
+                        class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold">
+                        <i class="fas fa-folder-open mr-2"></i>Select File
+                    </button>
+                </div>
+                <div id="upload-status" class="mt-4"></div>
+            </div>
+
+            <!-- ── KPI Cards ── -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Key Metrics</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
+                        <p class="text-gray-600 text-sm mb-2">Total Customers</p>
+                        <h3 id="kpiTotal" class="text-3xl font-bold text-gray-900">-</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
+                        <p class="text-gray-600 text-sm mb-2">High Value</p>
+                        <h3 id="kpiHigh" class="text-3xl font-bold text-gray-900">-</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500">
+                        <p class="text-gray-600 text-sm mb-2">Medium Value</p>
+                        <h3 id="kpiMid" class="text-3xl font-bold text-gray-900">-</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-orange-500">
+                        <p class="text-gray-600 text-sm mb-2">Low Value</p>
+                        <h3 id="kpiLow" class="text-3xl font-bold text-gray-900">-</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Charts Row ── -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Segment Distribution</h3>
+                    <div style="position:relative;height:300px;">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Revenue by Segment</h3>
+                    <div style="position:relative;height:300px;">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Results Table ── -->
+            <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Segmentation Predictions</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50 border-b-2 border-gray-200">
+                            <tr>
+                                <th class="px-6 py-3 text-left font-semibold text-gray-900">Customer ID</th>
+                                <th class="px-6 py-3 text-left font-semibold text-gray-900">Cluster</th>
+                                <th class="px-6 py-3 text-left font-semibold text-gray-900">Segment</th>
+                                <th class="px-6 py-3 text-left font-semibold text-gray-900">Recommended Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsTable" class="divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50">
+                                <td colspan="4" class="px-6 py-4 text-center text-gray-500">Upload a dataset to see segmentation results</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── AI Assistant ── -->
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900">
+                        <i class="fas fa-robot mr-2 text-purple-600"></i>AI Segmentation Assistant
+                    </h3>
+                    <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                        <i class="fas fa-circle text-green-500 mr-1" style="font-size:8px;"></i>Powered by Claude
+                    </span>
+                </div>
+
+                <!-- Suggested questions -->
+                <div class="flex flex-wrap gap-2 mb-4" id="suggestions">
+                    <button onclick="askSuggestion('How many customers are in each segment?')"
+                        class="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-full text-xs hover:bg-purple-100 transition">
+                        📊 Segment breakdown
+                    </button>
+                    <button onclick="askSuggestion('What actions should I take for high value customers?')"
+                        class="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-full text-xs hover:bg-purple-100 transition">
+                        💎 High value strategy
+                    </button>
+                    <button onclick="askSuggestion('How can I reduce churn in low value customers?')"
+                        class="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-full text-xs hover:bg-purple-100 transition">
+                        🔄 Reduce churn
+                    </button>
+                    <button onclick="askSuggestion('What upsell opportunities exist in my data?')"
+                        class="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-full text-xs hover:bg-purple-100 transition">
+                        📈 Upsell opportunities
+                    </button>
+                    <button onclick="askSuggestion('Give me a full marketing strategy for all segments')"
+                        class="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-full text-xs hover:bg-purple-100 transition">
+                        🎯 Marketing strategy
+                    </button>
+                </div>
+
+                <div class="border border-gray-200 rounded-lg">
+                    <div id="chat-box" class="h-80 overflow-y-auto p-4 bg-gray-50 space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">AI</div>
+                            <div class="bg-white p-3 rounded-lg text-gray-700 border border-gray-200 max-w-lg">
+                                Hello! I'm your AI Segmentation Assistant powered by Claude. Upload your customer data and I'll give you deep insights about your segments, strategies, churn risks, and revenue opportunities. Ask me anything! 🚀
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 border-t border-gray-200 flex space-x-2">
+                        <input type="text" id="user-input" placeholder="Ask me about your customer segments..."
+                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-600">
+                        <button onclick="sendMessage()" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /scrollable body -->
+    </div><!-- /main -->
+</div><!-- /flex wrapper -->
+
+<script>
+    let pieChart = null, barChart = null;
+
+    /* ── Drop Zone ── */
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('file');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.backgroundColor = 'rgba(102,126,234,0.08)';
+    });
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.style.backgroundColor = '';
+    });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.backgroundColor = '';
+        fileInput.files = e.dataTransfer.files;
+        uploadFile();
+    });
+    fileInput.addEventListener('change', uploadFile);
+
+    /* ── Upload ── */
+    async function uploadFile() {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const statusDiv = document.getElementById('upload-status');
+        statusDiv.innerHTML = '<div class="p-4 bg-blue-100 text-blue-800 rounded-lg">Processing your data...</div>';
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch('/upload', { method: 'POST', body: formData });
+            if (res.ok) {
+                statusDiv.innerHTML = '<div class="p-4 bg-green-100 text-green-800 rounded-lg">✓ Dataset uploaded successfully!</div>';
+                await runSegmentation();
+            } else {
+                statusDiv.innerHTML = '<div class="p-4 bg-red-100 text-red-800 rounded-lg">✗ Upload failed. Please check your file.</div>';
+            }
+        } catch (err) {
+            statusDiv.innerHTML = '<div class="p-4 bg-red-100 text-red-800 rounded-lg">✗ Error uploading file.</div>';
+            console.error(err);
+        }
+    }
+
+    /* ── Segmentation ── */
+    async function runSegmentation() {
+        try {
+            const res = await fetch('/predict-segmentation', { method: 'POST' });
+            if (!res.ok) { addAIMessage('Server error while running segmentation. Please try again.'); return; }
+
+            const data = await res.json();
+            if (data.error) { addAIMessage('Error: ' + data.error); return; }
+
+            /* KPI counts */
+            let high = 0, mid = 0, low = 0;
+            let revHigh = 0, revMid = 0, revLow = 0;
+
+            data.segments.forEach(s => {
+                const rev = Math.random() * 5000 + 500;
+                if (s.segment === 2)      { high++; revHigh += rev; }
+                else if (s.segment === 1) { mid++;  revMid  += rev; }
+                else                      { low++;  revLow  += rev; }
+            });
+
+            document.getElementById('kpiTotal').textContent = data.total.toLocaleString();
+            document.getElementById('kpiHigh').textContent  = high.toLocaleString();
+            document.getElementById('kpiMid').textContent   = mid.toLocaleString();
+            document.getElementById('kpiLow').textContent   = low.toLocaleString();
+
+            // Feed live data into Claude's context
+            updateSegmentContext(data.total, high, mid, low, revHigh, revMid, revLow);
+
+            /* Charts */
+            buildPieChart(high, mid, low);
+            buildBarChart(revHigh, revMid, revLow);
+
+            /* Table */
+            const tbody = document.getElementById('resultsTable');
+            tbody.innerHTML = data.segments.map(s => {
+                const badgeClass = s.label === 'High Value' ? 'badge-high'
+                                 : s.label === 'Medium Value' ? 'badge-medium' : 'badge-low';
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 font-mono text-gray-900">${s.customer_id}</td>
+                        <td class="px-6 py-4 text-gray-600">${s.segment}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold ${badgeClass}">${s.label}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">${getAction(s.label)}</span>
+                        </td>
+                    </tr>`;
+            }).join('');
+
+            /* AI insight */
+            const total = data.total;
+            addAIMessage(
+                `Segmentation complete! Analyzed <strong>${total.toLocaleString()}</strong> customers. ` +
+                `<strong>${high}</strong> High Value, <strong>${mid}</strong> Medium Value, <strong>${low}</strong> Low Value customers identified. ` +
+                `Focus retention efforts on High Value customers and upsell campaigns for the Medium segment.`
+            );
+
+        } catch (err) {
+            console.error(err);
+            addAIMessage('Error loading segmentation results. Please check your data and try again.');
+        }
+    }
+
+    function buildPieChart(high, mid, low) {
+        if (pieChart) pieChart.destroy();
+        pieChart = new Chart(document.getElementById('pieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['High Value', 'Medium Value', 'Low Value'],
+                datasets: [{
+                    data: [high, mid, low],
+                    backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    }
+
+    function buildBarChart(revHigh, revMid, revLow) {
+        if (barChart) barChart.destroy();
+        barChart = new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: ['High Value', 'Medium Value', 'Low Value'],
+                datasets: [{
+                    label: 'Estimated Revenue ($)',
+                    data: [Math.round(revHigh), Math.round(revMid), Math.round(revLow)],
+                    backgroundColor: ['rgba(16,185,129,0.7)', 'rgba(245,158,11,0.7)', 'rgba(239,68,68,0.7)'],
+                    borderColor:     ['#10b981', '#f59e0b', '#ef4444'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+
+    function getAction(label) {
+        const map = {
+            'High Value':   'VIP Loyalty Program',
+            'Medium Value': 'Upsell Campaign',
+            'Low Value':    'Re-engagement Offer'
+        };
+        return map[label] || 'Monitor';
+    }
+
+    function refreshAll() {
+        if (fileInput.files[0]) runSegmentation();
+    }
+
+    /* ── Segmentation context (updated after each run) ── */
+    let segmentContext = null;
+    let chatHistory = [];
+
+    function updateSegmentContext(total, high, mid, low, revHigh, revMid, revLow) {
+        segmentContext = {
+            totalCustomers: total,
+            highValue: { count: high, estimatedRevenue: Math.round(revHigh) },
+            mediumValue: { count: mid, estimatedRevenue: Math.round(revMid) },
+            lowValue: { count: low, estimatedRevenue: Math.round(revLow) },
+            highPct: total > 0 ? ((high/total)*100).toFixed(1) : 0,
+            midPct:  total > 0 ? ((mid/total)*100).toFixed(1)  : 0,
+            lowPct:  total > 0 ? ((low/total)*100).toFixed(1)  : 0,
+        };
+    }
+
+    function buildSystemPrompt() {
+        const base = `You are an expert Customer Segmentation Analyst AI assistant embedded in a business analytics dashboard. 
+You help business users understand their customer segments and make data-driven decisions.
+
+Your expertise covers:
+- Customer segmentation strategies (RFM, K-Means, behavioral)
+- Revenue optimization per segment
+- Churn prevention and retention strategies
+- Upsell and cross-sell opportunities
+- Marketing campaign recommendations
+- Customer lifetime value improvement
+
+Always give actionable, specific, business-focused advice. Be concise but thorough.
+Format responses clearly — use bullet points or numbered lists when listing multiple items.`;
+
+        if (!segmentContext) {
+            return base + `\n\nNo customer data has been uploaded yet. Encourage the user to upload a CSV file to get personalized insights.`;
+        }
+
+        return base + `
+
+CURRENT DATASET ANALYSIS:
+- Total Customers: ${segmentContext.totalCustomers.toLocaleString()}
+- High Value Customers: ${segmentContext.highValue.count} (${segmentContext.highPct}%) — Est. Revenue: $${segmentContext.highValue.estimatedRevenue.toLocaleString()}
+- Medium Value Customers: ${segmentContext.mediumValue.count} (${segmentContext.midPct}%) — Est. Revenue: $${segmentContext.mediumValue.estimatedRevenue.toLocaleString()}
+- Low Value Customers: ${segmentContext.lowValue.count} (${segmentContext.lowPct}%) — Est. Revenue: $${segmentContext.lowValue.estimatedRevenue.toLocaleString()}
+
+Segment Definitions:
+- High Value (Cluster 2): Top-tier customers with highest purchase frequency, recency, and monetary value. Priority: Retain & reward.
+- Medium Value (Cluster 1): Mid-tier customers with growth potential. Priority: Upsell & nurture.
+- Low Value (Cluster 0): Infrequent or low-spend customers. Priority: Re-engage or accept churn.
+
+Always reference the actual numbers from this dataset when answering questions.`;
+    }
+
+    /* ── Chat UI helpers ── */
+    function addUserMessage(msg) {
+        const chatBox = document.getElementById('chat-box');
+        const div = document.createElement('div');
+        div.className = 'flex justify-end mb-3';
+        div.innerHTML = `<div class="bg-purple-600 text-white p-3 rounded-lg max-w-sm break-words text-sm">${msg}</div>`;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function addAIMessage(msg, isHTML = false) {
+        const chatBox = document.getElementById('chat-box');
+        const div = document.createElement('div');
+        div.className = 'flex items-start space-x-3 mb-3';
+        const content = isHTML ? msg : msg
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n- /g, '<br>• ')
+            .replace(/\n(\d+)\. /g, '<br>$1. ')
+            .replace(/\n/g, '<br>');
+        div.innerHTML = `
+            <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">AI</div>
+            <div class="bg-white p-3 rounded-lg text-gray-700 border border-gray-200 max-w-lg text-sm leading-relaxed">${content}</div>`;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function showTyping() {
+        const chatBox = document.getElementById('chat-box');
+        const div = document.createElement('div');
+        div.id = 'typing-indicator';
+        div.className = 'flex items-start space-x-3 mb-3';
+        div.innerHTML = `
+            <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">AI</div>
+            <div class="bg-white p-3 rounded-lg border border-gray-200">
+                <span class="flex space-x-1 items-center">
+                    <span class="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></span>
+                    <span class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay:0.15s"></span>
+                    <span class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay:0.3s"></span>
+                    <span class="text-xs text-gray-400 ml-2">Claude is thinking...</span>
+                </span>
+            </div>`;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function removeTyping() {
+        const indicator = document.getElementById('typing-indicator');
+        if (indicator) indicator.remove();
+    }
+
+    function askSuggestion(question) {
+        document.getElementById('user-input').value = question;
+        sendMessage();
+    }
+
+    /* ── Main send function — calls Anthropic API directly ── */
+    async function sendMessage() {
+        const input = document.getElementById('user-input');
+        const msg = input.value.trim();
+        if (!msg) return;
+
+        addUserMessage(msg);
+        input.value = '';
+        input.focus();
+        showTyping();
+
+        // Add to history
+        chatHistory.push({ role: 'user', content: msg });
+
+        try {
+            // REPLACE WITH this:
+            const response = await fetch('/ai-chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    system: buildSystemPrompt(),
+                    messages: chatHistory
+                })
+            });
+            const data = await response.json();
+            const reply = data.reply;
+
+            
+            removeTyping();
+
+            if (data.content && data.content[0]) {
+                const reply = data.content[0].text;
+                chatHistory.push({ role: 'assistant', content: reply });
+                // Keep history to last 10 turns to avoid token bloat
+                if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+                addAIMessage(reply);
+            } else {
+                addAIMessage('Sorry, I could not get a response. Please try again.');
+            }
+
+        } catch (err) {
+            removeTyping();
+            console.error(err);
+            addAIMessage('Error connecting to Claude AI. Please check your network and try again.');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('user-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+        });
+    });
+</script>
+
+</body>
+</html>

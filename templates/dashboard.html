@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - InsightForge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-active { background-color: #06b6d4; }
+        .stat-card { border-left: 4px solid #667eea; }
+        .chart-container { position: relative; height: 300px; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-teal-700 text-white shadow-lg">
+            <div class="p-6">
+                <div class="flex items-center space-x-2 mb-8">
+                    <i class="fas fa-chart-line text-2xl" style="color: #667eea;"></i>
+                    <span class="text-xl font-bold">InsightForge</span>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="space-y-2">
+                    <a href="#" class="block px-4 py-3 rounded-lg text-white" style="background-color: #06b6d4;">
+                        <i class="fas fa-home mr-3"></i>Dashboard
+                    </a>
+                    <a href="/clv" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-cyan-700 transition">
+                        <i class="fas fa-user-chart mr-3"></i>CLV Prediction
+                    </a>
+                    <a href="/churn" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-cyan-700 transition">
+                        <i class="fas fa-user-slash mr-3"></i>Churn Analysis
+                    </a>
+                    <a href="#" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800 transition">
+                        <i class="fas fa-sitemap mr-3"></i>Segmentation
+                    </a>
+                    <a href="#" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800 transition">
+                        <i class="fas fa-file-csv mr-3"></i>Data Upload
+                    </a>
+                </nav>
+
+                <!-- Divider -->
+                <div class="my-6 border-t border-gray-700"></div>
+
+                <!-- Settings -->
+                <nav class="space-y-2">
+                    <a href="#" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800 transition">
+                        <i class="fas fa-cog mr-3"></i>Settings
+                    </a>
+                    <a href="#" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800 transition">
+                        <i class="fas fa-question-circle mr-3"></i>Help & Support
+                    </a>
+                </nav>
+            </div>
+
+            <!-- User Info -->
+            <div class="px-6 py-4 border-t border-gray-700 absolute bottom-0 w-64">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                        SH
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold">Shivam</p>
+                        <p class="text-xs text-gray-400">Pro Account</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Bar -->
+            <div class="bg-white shadow-sm px-8 py-4 flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+                <div class="flex items-center space-x-4">
+                    <button class="relative p-2 text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    <button class="p-2 text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-user-circle text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="flex-1 overflow-auto p-8">
+                <!-- Welcome Section -->
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900">Welcome Back! 👋</h2>
+                    <p class="text-gray-600 mt-2">Here's your analytics overview for this month</p>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <!-- KPI 1 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm stat-card card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-600 text-sm mb-2">Total Customers</p>
+                                <h3 class="text-3xl font-bold text-gray-900 kpi-value">12,450</h3>
+                                <p class="text-green-500 text-sm mt-2"><i class="fas fa-arrow-up mr-1"></i>+12% from last month</p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-users text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 2 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm stat-card card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-600 text-sm mb-2">Avg Customer CLV</p>
+                                <h3 class="text-3xl font-bold text-gray-900 kpi-value">$2,450</h3>
+                                <p class="text-green-500 text-sm mt-2"><i class="fas fa-arrow-up mr-1"></i>+8% improvement</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 3 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm stat-card card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-600 text-sm mb-2">Churn Rate</p>
+                                <h3 class="text-3xl font-bold text-gray-900 kpi-value">3.2%</h3>
+                                <p class="text-green-500 text-sm mt-2"><i class="fas fa-arrow-down mr-1"></i>-0.5% vs last month</p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-pie text-purple-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 4 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm stat-card card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-600 text-sm mb-2">Revenue</p>
+                                <h3 class="text-3xl font-bold text-gray-900 kpi-value">$305K</h3>
+                                <p class="text-green-500 text-sm mt-2"><i class="fas fa-arrow-up mr-1"></i>+15% growth</p>
+                            </div>
+                            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-coins text-orange-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Revenue Chart -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">Revenue Trend</h3>
+                        <div class="chart-container">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Customer Segments Chart -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">Customer Segments</h3>
+                        <div class="chart-container">
+                            <canvas id="segmentChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- CLV Distribution -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">CLV Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="clvChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Churn Indicators -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">Risk Categories</h3>
+                        <div class="chart-container">
+                            <canvas id="riskChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Predictions -->
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Recent Predictions</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 border-b-2 border-gray-200">
+                                <tr>
+                                    <th class="px-6 py-3 text-left font-semibold text-gray-900">Customer ID</th>
+                                    <th class="px-6 py-3 text-left font-semibold text-gray-900">CLV Prediction</th>
+                                    <th class="px-6 py-3 text-left font-semibold text-gray-900">Churn Risk</th>
+                                    <th class="px-6 py-3 text-left font-semibold text-gray-900">Segment</th>
+                                    <th class="px-6 py-3 text-left font-semibold text-gray-900">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4 font-mono text-gray-900">CUST-001</td>
+                                    <td class="px-6 py-4 text-green-600 font-semibold">$5,230</td>
+                                    <td class="px-6 py-4"><span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">Low</span></td>
+                                    <td class="px-6 py-4 text-gray-600">Premium</td>
+                                    <td class="px-6 py-4"><i class="fas fa-check-circle text-green-500"></i></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4 font-mono text-gray-900">CUST-002</td>
+                                    <td class="px-6 py-4 text-blue-600 font-semibold">$3,450</td>
+                                    <td class="px-6 py-4"><span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">Medium</span></td>
+                                    <td class="px-6 py-4 text-gray-600">Standard</td>
+                                    <td class="px-6 py-4"><i class="fas fa-check-circle text-green-500"></i></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4 font-mono text-gray-900">CUST-003</td>
+                                    <td class="px-6 py-4 text-orange-600 font-semibold">$1,200</td>
+                                    <td class="px-6 py-4"><span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold">High</span></td>
+                                    <td class="px-6 py-4 text-gray-600">Basic</td>
+                                    <td class="px-6 py-4"><i class="fas fa-exclamation-circle text-red-500"></i></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4 font-mono text-gray-900">CUST-004</td>
+                                    <td class="px-6 py-4 text-green-600 font-semibold">$4,890</td>
+                                    <td class="px-6 py-4"><span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">Low</span></td>
+                                    <td class="px-6 py-4 text-gray-600">Premium</td>
+                                    <td class="px-6 py-4"><i class="fas fa-check-circle text-green-500"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Revenue ($K)',
+                    data: [220, 240, 265, 280, 290, 305],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#667eea'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // Customer Segments Chart
+        const segmentCtx = document.getElementById('segmentChart').getContext('2d');
+        new Chart(segmentCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Premium', 'Standard', 'Basic'],
+                datasets: [{
+                    data: [35, 30, 25, 10],
+                    backgroundColor: ['#667eea', '#764ba2', '#f59e0b', '#ef4444']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // CLV Distribution Chart
+        const clvCtx = document.getElementById('clvChart').getContext('2d');
+        new Chart(clvCtx, {
+            type: 'bar',
+            data: {
+                labels: ['$0-$1000', '$1000-$2000', '$2000-$3000', '$3000-$4000', '$4000+'],
+                datasets: [{
+                    label: 'Number of Customers',
+                    data: [3240, 2890, 2450, 1890, 1980],
+                    backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                    borderColor: '#667eea',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // Risk Chart
+        const riskCtx = document.getElementById('riskChart').getContext('2d');
+        new Chart(riskCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Low Risk', 'Medium Risk', 'High Risk', 'At Risk', 'Critical'],
+                datasets: [{
+                    label: 'Customer Count',
+                    data: [6200, 3100, 1800, 890, 460],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.15)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { r: { beginAtZero: true } }
+            }
+        });
+    </script>
+</body>
+</html>

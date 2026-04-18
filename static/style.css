@@ -1,0 +1,160 @@
+/* Modern Tailwind CSS Compatible Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-color: #eef2f7;
+    color: #1e293b;
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Upload zone styles */
+.upload-zone {
+    transition: all 0.3s ease;
+    border-color: #ccc;
+    background-color: #fff;
+}
+
+.upload-zone:hover {
+    border-color: #06b6d4;
+    background-color: #f0f9ff;
+}
+
+.upload-zone.active {
+    border-color: #06b6d4;
+    background-color: #e0f7ff;
+    box-shadow: 0 0 6px rgba(6, 182, 212, 0.3);
+}
+
+/* Chart container */
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin: 20px 0;
+}
+
+/* Loading animation */
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(102, 126, 234, 0.3);
+    border-radius: 50%;
+    border-top-color: #667eea;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Tooltip */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: #1f2937;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Badge styles */
+.badge-success {
+    background-color: #a7f3d0;
+    color: #065f46;
+}
+
+.badge-warning {
+    background-color: #fef08a;
+    color: #92400e;
+}
+
+.badge-danger {
+    background-color: #fecaca;
+}
+
+/* Table enhancements */
+table tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+table tbody tr:hover {
+    background-color: #f0f4f8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .chart-container {
+        height: 240px;
+    }
+    .card-hover:hover {
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+
+.chat-container{
+border:1px solid #ccc;
+height:200px;
+overflow-y:auto;
+padding:10px;
+margin-top:20px;
+}
