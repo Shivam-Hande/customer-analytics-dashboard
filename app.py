@@ -7,7 +7,7 @@ import os
 import warnings
 import joblib
 
-from google import genai
+
 warnings.filterwarnings('ignore')
 
 app = Flask(__name__)
